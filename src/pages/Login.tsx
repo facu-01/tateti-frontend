@@ -1,22 +1,25 @@
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { validateEmail } from 'services/validations';
+import { useNavigate } from 'react-router-dom';
 
-interface IFormValues {
+interface IFormValuesLogin {
   email: string;
   password: string;
 }
 
 export const Login: React.FC = () => {
-  const [{ email, password }, setFormValues] = useState<IFormValues>({
+  const navigate = useNavigate();
+  const [{ email, password }, setFormValues] = useState<IFormValuesLogin>({
     email: '',
     password: '',
   });
 
   const handleInputChange =
     (field: 'email' | 'password') => (event: ChangeEvent<HTMLInputElement>) =>
-      setFormValues((prev) => ({ ...prev, [field]: event.target.value }));
-
-  const validEmail = email.length ? validateEmail(email) : true;
+      setFormValues((prev) => ({
+        ...prev,
+        [field]: event.target.value,
+      }));
 
   return (
     <div
@@ -45,9 +48,11 @@ export const Login: React.FC = () => {
           <div className={'form-group'}>
             <label>email</label>
             <input
-              style={{
-                borderColor: validEmail ? 'black' : 'var(--error-color)',
-              }}
+              // style={{
+              //   borderColor: email.valid
+              //     ? 'var(--font-color)'
+              //     : 'var(--error-color)',
+              // }}
               value={email}
               onChange={handleInputChange('email')}
               type={'email'}
@@ -59,6 +64,11 @@ export const Login: React.FC = () => {
               value={password}
               onChange={handleInputChange('password')}
               type={'password'}
+              // style={{
+              //   borderColor: password.valid
+              //     ? 'var(--font-color)'
+              //     : 'var(--error-color)',
+              // }}
             />
           </div>
           <div
@@ -72,7 +82,12 @@ export const Login: React.FC = () => {
           >
             <button className={'btn btn-default'}>Login</button>
             <span>or</span>
-            <button className={'btn btn-default'}>Register</button>
+            <button
+              className={'btn btn-default'}
+              onClick={(): void => navigate('/register')}
+            >
+              Register
+            </button>
           </div>
         </fieldset>
       </form>
