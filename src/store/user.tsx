@@ -1,38 +1,48 @@
 import { Subject } from 'rxjs';
-import { useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import axios from 'axios';
+import { environment } from 'environment/environment';
 
-export interface User {
-  name: string;
+interface ISessionUser {
+  user: { name: string } | undefined;
+  pending: boolean;
 }
 
-let currentUser: User | undefined;
+let currentUser: ISessionUser = { user: undefined, pending: true };
 
 // RXJS
-const userSubject = new Subject<User | undefined>();
+const userSubject = new Subject<ISessionUser>();
 
-export const useSessionUser = (): User | undefined => {
-  const [user, setUser] = useState(currentUser);
+export const useSessionUser = (): ISessionUser => {
+  const [session, setSession] = useState(currentUser);
 
   useLayoutEffect(() => {
-    userSubject.subscribe((newState) => setUser(newState));
+    userSubject.subscribe((newState) => setSession(newState));
   }, []);
 
-  return user;
+  return session;
 };
 
-export const updateSessionUser = async (token: string): Promise<void> => {
+export const updateSessionUser = async (
+  token: string | null
+): Promise<void> => {
+  if (!token) {
+    currentUser = { user: undefined, pending: false };
+    userSubject.next(currentUser);
+    return;
+  }
   //Fetch user
   try {
     const { data } = await axios({
       method: 'get',
+      baseURL: environment.backendUrl,
       url: 'players/show',
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log('from Login', { data });
-    userSubject.next(data);
+    currentUser = { user: data, pending: false };
+    userSubject.next(currentUser);
     saveToken(token);
     axios.defaults.headers.common.Authorization = `Bearer ${token}`;
   } catch (error) {
@@ -41,7 +51,7 @@ export const updateSessionUser = async (token: string): Promise<void> => {
 };
 
 export const cleanSessionUser = (): void => {
-  currentUser = undefined;
+  currentUser = { user: undefined, pending: false };
   userSubject.next(currentUser);
   clearToken();
   axios.defaults.headers.common.Authorization = '';
@@ -51,6 +61,10 @@ export const cleanSessionUser = (): void => {
 const saveToken = (token: string): void =>
   sessionStorage.setItem('token', token);
 
-const getToken = (): null | string => sessionStorage.getItem('token');
+const getToken = (): string | null => sessionStorage.getItem('token');
 
 const clearToken = (): void => sessionStorage.removeItem('token');
+
+const token = getToken();
+
+updateSessionUser(token);

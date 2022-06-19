@@ -1,51 +1,171 @@
-import { ChangeEvent, memo, useCallback, useState } from 'react';
+import { ChangeEvent, memo, useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { validateEmail } from 'services/validations';
+import { CustomInput } from 'components/CustomInput';
+import { useMutation } from 'react-query';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
-type TField = 'email' | 'name' | 'password';
+interface IRegisterErrors {
+  email?: string[];
+  name?: string[];
+}
 
-type TForm = {
-  [key in TField]: string;
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const useRegisterUser = () => {
+  const navigate = useNavigate();
+  return useMutation(
+    (userData: { email: string; name: string; password: string }) =>
+      toast.promise(
+        axios({
+          method: 'post',
+          url: 'players',
+          data: userData,
+          headers: { Authorization: '' },
+        }),
+        {
+          pending: 'Registering... ⌛',
+          success: {
+            render: ({ data }) =>
+              `Welcome ${data?.data.name}, you can login! 🎊`,
+          },
+          error: {
+            render: ({ data }) => {
+              const errors: IRegisterErrors = data.response.data.errors;
+              const emailError = errors.email
+                ? `Email: ${errors.email[0]}`
+                : '';
+              const nameError = errors.name ? `Name: ${errors.name[0]}` : '';
+              return `${emailError} ${nameError}`;
+            },
+          },
+        }
+      ),
+    {
+      onSuccess: () => navigate('/'),
+    }
+  );
 };
 
-type TFormValidations = {
-  [key in TField]: boolean;
-};
+interface IField {
+  id: string;
+  label: string;
+  value: string;
+  valid: boolean;
+  errorMsg: string;
+  inputType?: React.HTMLInputTypeAttribute | undefined;
+}
 
 export const Register: React.FC = () => {
+  // services
   const navigate = useNavigate();
+  const { mutate, isLoading, isSuccess } = useRegisterUser();
+  // form
+  const [formValues, setFormValues] = useState<IField[]>([
+    {
+      id: 'email',
+      label: 'email',
+      value: '',
+      errorMsg: '',
+      valid: true,
+    },
+    {
+      id: 'name',
+      label: 'name',
+      value: '',
+      errorMsg: '',
+      valid: true,
+    },
+    {
+      id: 'password',
+      label: 'password',
+      value: '',
+      errorMsg: '',
+      valid: true,
+      inputType: 'password',
+    },
+    {
+      id: 'confirmPassword',
+      label: 'confirm password',
+      value: '',
+      errorMsg: '',
+      valid: true,
+      inputType: 'password',
+    },
+  ]);
 
-  const [formValues, setFormValues] = useState<TForm>({
-    email: '',
-    name: '',
-    password: '',
-  });
-
-  //Prevent re-renders
-  const handleInputChange = useCallback(
-    (field: string, event: ChangeEvent<HTMLInputElement>) =>
-      setFormValues((prev) => ({
-        ...prev,
-        [field]: event.target.value,
-      })),
+  // prevents re-renders
+  const changeEventsHandlers = useMemo(
+    () =>
+      formValues.map(
+        (_, i) => (event: ChangeEvent<HTMLInputElement>) =>
+          setFormValues((prev) =>
+            prev.map((prevF, prevI) => {
+              if (prevI === i) {
+                return {
+                  ...prevF,
+                  value: event.target.value,
+                  valid: true,
+                  errorMsg: '',
+                };
+              }
+              return prevF;
+            })
+          )
+      ),
     []
   );
 
-  const validFormValues: TFormValidations = {
-    email: formValues.email.length ? validateEmail(formValues.email) : true,
-    name: formValues.name.length ? formValues.name.length > 2 : true,
-    password: formValues.password.length
-      ? formValues.password.length > 6
-      : true,
+  const setErrorMsg = (fieldId: string) => (message: string) =>
+    setFormValues((prev) =>
+      prev.map((prevF) => {
+        if (prevF.id === fieldId) {
+          return { ...prevF, valid: false, errorMsg: message };
+        }
+        return prevF;
+      })
+    );
+
+  const validateForm = (): boolean =>
+    formValues.reduce((prev, current) => {
+      const { id, value } = current;
+
+      if (id === 'name' && value.length < 2) {
+        setErrorMsg(id)('name must have at least 2 characters');
+        return false;
+      }
+      if (id === 'email' && !validateEmail(value)) {
+        setErrorMsg(id)('invalid email');
+        return false;
+      }
+      if (id === 'password' && value.length < 6) {
+        setErrorMsg(id)('password must have at least 6 characters');
+        return false;
+      }
+      if (id === 'confirmPassword') {
+        const passwordField = formValues.find((f) => f.id === 'password');
+        if (passwordField?.value !== value) {
+          setErrorMsg(id)('passwords do not match!');
+          return false;
+        }
+      }
+      return prev;
+    }, true);
+
+  const handleConfirm = (): void => {
+    const validForm = validateForm();
+    if (!validForm) return;
+    const FEmail = formValues.find((f) => f.id === 'email');
+    const FName = formValues.find((f) => f.id === 'name');
+    const FPassword = formValues.find((f) => f.id === 'password');
+    if (FEmail && FName && FPassword) {
+      mutate({
+        email: FEmail.value,
+        name: FName.value,
+        password: FPassword.value,
+      });
+    }
   };
-
-  const [helperTexts, setHelperText] = useState<TForm>();
-
-  // const validateForm = (): boolean => {
-  //   if (!validFormValues) setErrorMsgs((prev) => []);
-  // };
-
-  // const handleAccept = (): void => {};
 
   return (
     <div
@@ -56,30 +176,30 @@ export const Register: React.FC = () => {
         placeItems: 'center',
       }}
     >
-      <form
-        onSubmit={(e): void => e.preventDefault()}
+      <div
         style={{
           width: '50%',
-          height: '50%',
           display: 'grid',
         }}
       >
         <fieldset>
-          <legend
-            className={'aesthetic-effect-text-glitch'}
-            data-glitch={'Register!'}
-          >
-            Register!
+          <legend className={'layers glitch'} data-text={'Register!'}>
+            <span>Register!</span>
           </legend>
-          {Object.entries(formValues).map(([key, value]) => (
-            <CustomInput
-              key={key}
-              valid={validFormValues[key as TField]}
-              value={value}
-              field={key}
-              onChange={handleInputChange}
-            />
-          ))}
+          <div className={'form-group'}>
+            {formValues.map((f, index) => (
+              <CustomInput
+                disabled={isLoading || isSuccess}
+                key={f.label}
+                label={f.label}
+                value={f.value}
+                onChange={changeEventsHandlers[index]}
+                valid={f.valid}
+                helperText={f.errorMsg}
+                inputType={f.inputType}
+              />
+            ))}
+          </div>
           <div
             className={'form-group'}
             style={{
@@ -90,56 +210,25 @@ export const Register: React.FC = () => {
             }}
           >
             <button
-              className={'btn btn-default'}
-              onClick={(): void => console.log({ formValues })}
+              disabled={isLoading || isSuccess}
+              className={'btn btn-default btn-ghost layersHover glitchHover'}
+              onClick={handleConfirm}
+              data-text="Complete!"
             >
-              Complete!
+              <span>Complete!</span>
             </button>
             <span>or</span>
             <button
-              className={'btn btn-default'}
+              disabled={isLoading || isSuccess}
+              className={'btn btn-default btn-ghost layersHover glitchHover'}
+              data-text="Login"
               onClick={(): void => navigate('/')}
             >
-              Login
+              <span>Login</span>
             </button>
           </div>
         </fieldset>
-      </form>
+      </div>
     </div>
   );
 };
-
-interface ICustomInput {
-  value: string;
-  field: string;
-  onChange: (field: string, event: ChangeEvent<HTMLInputElement>) => void;
-  valid: boolean;
-}
-
-const CustomInput: React.FC<ICustomInput> = memo(
-  ({ value, field, onChange, valid }) => {
-    console.log('input render ' + field);
-
-    return (
-      <div
-        className={'form-group'}
-        style={{
-          display: 'grid',
-          gridTemplateRows: '21px 38px 14px',
-          overflow: 'hidden',
-        }}
-      >
-        <label>{field}</label>
-        <input
-          style={{
-            borderColor: valid ? 'var(--font-color)' : 'var(--error-color)',
-          }}
-          spellCheck="false"
-          value={value}
-          onChange={(e): void => onChange(field, e)}
-          type={field === 'password' ? 'password' : 'text'}
-        />
-      </div>
-    );
-  }
-);
