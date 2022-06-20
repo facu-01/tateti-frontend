@@ -21,4 +21,8 @@
     --code-bg-color: #3f3f44 !important;
     --input-style: solid !important;
     --display-h1-decoration: none !important;
+
+    --toastify-font-family:unset !important;
+    --toastify-toast-min-height:unset !important;
+    --toastify-toast-width:unset !important;
 }

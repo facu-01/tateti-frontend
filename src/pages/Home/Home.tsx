@@ -1,36 +1,42 @@
 import { cleanSessionUser } from 'store/user';
-import GlitchedWriter, { wait, WriterDataResponse } from 'glitched-writer';
-import { useEffect, useRef } from 'react';
-import { TextScramble } from '@a7sc11u/scramble';
+import GlitchedWriter, {
+  presets,
+  wait,
+  WriterDataResponse,
+} from 'glitched-writer';
+import React, { useEffect, useRef, useState } from 'react';
+import { Bar } from 'pages/Home/Bar';
+import { ButtonGlitch } from 'components/ButtonGlitch';
+import { useMutation } from 'react-query';
+import axios, { AxiosResponse } from 'axios';
+import { GlitchWriter } from 'components/GlitchWriter';
+import { Game } from 'pages/Home/Game';
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const useCreateGame = () =>
+  useMutation(() =>
+    axios({
+      method: 'post',
+      url: 'games',
+    })
+  );
 
 export const Home: React.FC = () => {
   // create game
+  const {
+    data,
+    error,
+    isLoading,
+    isSuccess,
+    reset: resetCreateGame,
+    mutate: createGame,
+  } = useCreateGame();
 
   // join game
 
   // browse games
 
-  //TODO: close session
-
-  //TEST
-
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-    const loadWriter = async () => {
-      const Writer = new GlitchedWriter('#glitch_this', { letterize: true });
-      await wait(1000);
-      await Writer.write('my old friend.');
-
-      await wait(1200);
-      await Writer.write('This is only the beginning.');
-
-      await wait(1500);
-      await Writer.write('Please, say something...');
-    };
-    loadWriter();
-  }, []);
-
-  const elRef = useRef<HTMLDivElement>(null);
+  // TODO: tooltip for game token
 
   return (
     <div
@@ -38,32 +44,66 @@ export const Home: React.FC = () => {
         width: '100%',
         height: '100%',
         display: 'grid',
-        gridTemplateRows: '70% 30%',
+        gridTemplateRows: '100px 70% 30%',
         gridTemplateColumns: '50% 50%',
       }}
     >
       <div
         style={{
-          height: '100%',
-          width: '100%',
-          display: 'grid',
-          placeItems: 'center',
+          gridColumn: '1 / -1',
         }}
       >
-        <div id="glitch_this">Welcome</div>
-        <button
-          data-glitch={'Create game'}
-          className={'btn btn-default btn-ghost '}
+        <Bar />
+      </div>
+      <div
+        style={{
+          height: '100%',
+          display: 'grid',
+          gridTemplateRows: 'auto',
+          paddingLeft: '10px',
+          // placeItems: 'center',
+        }}
+      >
+        {!data && !isLoading && (
+          <div>
+            <ButtonGlitch onClick={(): void => createGame()}>
+              Create Game
+            </ButtonGlitch>
+          </div>
+        )}
+        {(data || isLoading) && (
+          <>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+              }}
+            >
+              <GlitchWriter
+                className={'terminal-prompt'}
+                text={isLoading ? 'Loading...' : 'game token:'}
+              />
+              {(data || isLoading) && (
+                <b>
+                  <GlitchWriter
+                    text={isSuccess ? data.data.gameToken : 'xxxxxxxxxxx'}
+                    endLess={!isSuccess}
+                  />
+                </b>
+              )}
+            </div>
+          </>
+        )}
+        {isSuccess && <Game gameToken={data.data.gameToken} />}
+        <div
+          style={{
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}
         >
-          Create game
-        </button>
-        <button
-          data-glitch={'Create game'}
-          className={'btn btn-default btn-ghost '}
-          onClick={(): void => cleanSessionUser()}
-        >
-          close
-        </button>
+          <ButtonGlitch onClick={resetCreateGame}>TestClose</ButtonGlitch>
+        </div>
       </div>
     </div>
   );

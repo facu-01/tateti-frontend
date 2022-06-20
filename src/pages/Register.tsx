@@ -5,6 +5,9 @@ import { CustomInput } from 'components/CustomInput';
 import { useMutation } from 'react-query';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { ContainerGlitch } from 'components/ContainerGlitch';
+import { GlitchWriter } from 'components/GlitchWriter';
+import { ButtonGlitch } from 'components/ButtonGlitch';
 
 interface IRegisterErrors {
   email?: string[];
@@ -24,10 +27,17 @@ const useRegisterUser = () => {
           headers: { Authorization: '' },
         }),
         {
-          pending: 'Registering... ⌛',
+          pending: {
+            render: () => {
+              const text = 'Creating user...';
+              return <ContainerGlitch dataText={text}>{text}</ContainerGlitch>;
+            },
+          },
           success: {
-            render: ({ data }) =>
-              `Welcome ${data?.data.name}, you can login! 🎊`,
+            render: ({ data }) => {
+              const text = `Welcome ${data?.data.name}, you can login!`;
+              return <ContainerGlitch dataText={text}>{text}</ContainerGlitch>;
+            },
           },
           error: {
             render: ({ data }) => {
@@ -36,7 +46,11 @@ const useRegisterUser = () => {
                 ? `Email: ${errors.email[0]}`
                 : '';
               const nameError = errors.name ? `Name: ${errors.name[0]}` : '';
-              return `${emailError} ${nameError}`;
+              return (
+                <ContainerGlitch dataText={`${emailError} ${nameError}`}>
+                  {`${emailError} ${nameError}`}
+                </ContainerGlitch>
+              );
             },
           },
         }
@@ -209,23 +223,19 @@ export const Register: React.FC = () => {
               justifyItems: 'center',
             }}
           >
-            <button
+            <ButtonGlitch
               disabled={isLoading || isSuccess}
-              className={'btn btn-default btn-ghost layersHover glitchHover'}
               onClick={handleConfirm}
-              data-text="Complete!"
             >
-              <span>Complete!</span>
-            </button>
+              Complete!
+            </ButtonGlitch>
             <span>or</span>
-            <button
+            <ButtonGlitch
               disabled={isLoading || isSuccess}
-              className={'btn btn-default btn-ghost layersHover glitchHover'}
-              data-text="Login"
               onClick={(): void => navigate('/')}
             >
-              <span>Login</span>
-            </button>
+              Login
+            </ButtonGlitch>
           </div>
         </fieldset>
       </div>

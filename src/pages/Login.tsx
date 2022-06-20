@@ -6,22 +6,9 @@ import { useMutation, UseMutationResult } from 'react-query';
 import { toast } from 'react-toastify';
 import axios, { AxiosResponse } from 'axios';
 import { updateSessionUser } from 'store/user';
-import 'styles/glitch.css';
-import GlitchedWriter, { wait } from 'glitched-writer';
-
-const Test: React.FC<{ text: string }> = ({ text }) => {
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-    const loadWriter = async () => {
-      const Writer = new GlitchedWriter('#glitch_this', { letterize: true });
-
-      await Writer.write(text);
-    };
-    loadWriter();
-  }, []);
-
-  return <div id="glitch_this"></div>;
-};
+import { ContainerGlitch } from 'components/ContainerGlitch';
+import { GlitchWriter } from 'components/GlitchWriter';
+import { ButtonGlitch } from 'components/ButtonGlitch';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const useLogin = () => {
@@ -37,13 +24,32 @@ const useLogin = () => {
         }),
         {
           pending: {
-            render: () => <Test text="Loading..." />,
+            render: () => {
+              const text = 'Loading...';
+              return <ContainerGlitch dataText={text}>{text}</ContainerGlitch>;
+            },
           },
           success: {
-            render: () => <Test text="Welcome back!" />,
+            render: () => {
+              const text = 'Login successful';
+              return <ContainerGlitch dataText={text}>{text}</ContainerGlitch>;
+            },
           },
           error: {
-            render: ({ data }) => <Test text="Email or password incorrect!" />,
+            render: ({ data }) => {
+              if (data.response.status === 401) {
+                return (
+                  <ContainerGlitch dataText={'Invalid email or password'}>
+                    Invalid email or password
+                  </ContainerGlitch>
+                );
+              }
+              return (
+                <ContainerGlitch dataText={'Something went wrong'}>
+                  Something went wrong
+                </ContainerGlitch>
+              );
+            },
           },
         }
       ),
@@ -189,23 +195,19 @@ export const Login: React.FC = () => {
               justifyItems: 'center',
             }}
           >
-            <button
+            <ButtonGlitch
               disabled={isLoading || isSuccess}
-              className={'btn btn-default btn-ghost layersHover glitchHover'}
               onClick={handleLogin}
-              data-text="Login"
             >
-              <span>Login</span>
-            </button>
+              Login
+            </ButtonGlitch>
             <span>or</span>
-            <button
+            <ButtonGlitch
               disabled={isLoading || isSuccess}
-              className={'btn btn-default btn-ghost layersHover glitchHover'}
-              data-text="Register"
               onClick={(): void => navigate('/register')}
             >
-              <span>Register</span>
-            </button>
+              Register
+            </ButtonGlitch>
           </div>
         </fieldset>
       </div>
