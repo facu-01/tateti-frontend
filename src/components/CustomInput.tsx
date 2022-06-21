@@ -5,7 +5,7 @@ interface ICustomInput {
   disabled?: boolean;
   value: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  valid: boolean;
+  valid?: boolean;
   helperText?: string;
   inputType?: React.HTMLInputTypeAttribute | undefined;
 }
@@ -15,7 +15,7 @@ export const CustomInput: React.FC<ICustomInput> = memo(
     label,
     value,
     onChange,
-    valid,
+    valid = true,
     helperText,
     inputType = 'text',
     disabled = false,

@@ -1,5 +1,5 @@
-import { useQuery } from 'react-query';
-import axios from 'axios';
+import { useMutation, useQuery } from 'react-query';
+import axios, { Axios } from 'axios';
 import { GlitchWriter } from 'components/GlitchWriter';
 import React, { useState } from 'react';
 import { ButtonGlitch } from 'components/ButtonGlitch';
@@ -22,14 +22,57 @@ const useGame = (token: string) =>
         },
       }),
     {
-      refetchInterval: 1000,
+      refetchInterval: (response) => {
+        if (response?.data?.finished) return false;
+        if (response?.data?.yourTurn) return false;
+        return 1000;
+      },
+    }
+  );
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const useMakeMove = (refetchGame: () => void) =>
+  useMutation(
+    ({ cellIndex, gameToken }: { cellIndex: number; gameToken: string }) =>
+      axios({
+        method: 'post',
+        url: 'games/move',
+        data: {
+          cellIndex,
+          gameToken,
+        },
+      }),
+    {
+      onSuccess: refetchGame,
     }
   );
 
 export const Game: React.FC<{ gameToken: string }> = ({ gameToken }) => {
-  const { data, isLoading, isError, isSuccess } = useGame(gameToken);
+  //fetch game
+  const {
+    data: dataGame,
+    isLoading: isLoadingGame,
+    isError: isErrorGame,
+    refetch: refetchGame,
+    isSuccess: isSuccessGame,
+  } = useGame(gameToken);
 
   const [showTable, setShowTable] = useState(false);
+
+  //make move
+  const { mutate: mutateMakeMove, isLoading: isLoadingMakeMove } =
+    useMakeMove(refetchGame);
+
+  const makeMove = (cellIndex: number): void =>
+    mutateMakeMove({ cellIndex, gameToken });
+
+  if (isErrorGame) {
+    return (
+      <div className={'terminal-alert terminal-alert-error'}>
+        <GlitchWriter text={'Something went wrong :('} />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -42,41 +85,60 @@ export const Game: React.FC<{ gameToken: string }> = ({ gameToken }) => {
       >
         <GlitchWriter
           className={'terminal-prompt'}
-          text={isLoading ? 'Loading...' : 'game status:'}
+          text={isLoadingGame ? 'Loading...' : 'game status:'}
           onEnd={(): void => setShowTable(true)}
         />
-        {(data || isLoading) && (
+        {(dataGame || isLoadingGame) && (
           <b>
             <GlitchWriter
-              text={isSuccess ? data.data.status : 'xxxxxxxxxxx'}
-              endLess={!isSuccess}
+              text={isSuccessGame ? dataGame?.data.status : 'xxxxxxxxxxx'}
+              endLess={!isSuccessGame}
             />
           </b>
         )}
       </div>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-        }}
-      >
-        <GlitchWriter
-          className={'terminal-prompt'}
-          text={isLoading ? 'Loading...' : 'your turn:'}
-          onEnd={(): void => setShowTable(true)}
-        />
-        {(data || isLoading) && (
+      {!dataGame?.data.finished && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+          }}
+        >
+          <GlitchWriter
+            className={'terminal-prompt'}
+            text={isLoadingGame ? 'Loading...' : 'your turn:'}
+          />
+          {(dataGame || isLoadingGame) && (
+            <b>
+              <GlitchWriter
+                text={
+                  isSuccessGame
+                    ? dataGame?.data?.yourTurn
+                      ? 'true'
+                      : 'false'
+                    : 'xxxx'
+                }
+                endLess={!isSuccessGame}
+              />
+            </b>
+          )}
+        </div>
+      )}
+      {dataGame?.data.winner && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+          }}
+        >
+          <GlitchWriter className={'terminal-prompt'} text={'winner:'} />
           <b>
-            <GlitchWriter
-              text={
-                isSuccess ? (data.data?.yourTurn ? 'true' : 'false') : 'xxxx'
-              }
-              endLess={!isSuccess}
-            />
+            <GlitchWriter text={dataGame?.data.winner} />
           </b>
-        )}
-      </div>
+        </div>
+      )}
       <div
         style={{
           height: '100%',
@@ -93,18 +155,22 @@ export const Game: React.FC<{ gameToken: string }> = ({ gameToken }) => {
             gridTemplateColumns: 'repeat(3, 100px)',
           }}
         >
-          {showTable && data?.data?.table
-            ? data.data.table.map((_: never, i: number) => (
+          {showTable && dataGame?.data?.table
+            ? dataGame?.data.table.map((symbol: string | null, i: number) => (
                 <button
-                  disabled={!data.data.yourTurn}
+                  onClick={(): void => makeMove(i)}
+                  disabled={!dataGame?.data.yourTurn}
                   key={i}
                   className={'btn btn-default'}
                   style={{
+                    cursor: dataGame?.data.yourTurn ? 'pointer' : 'not-allowed',
                     border: '1px solid grey',
                     width: '100%',
                     height: '100%',
                   }}
-                ></button>
+                >
+                  {symbol}
+                </button>
               ))
             : [...Array(9)].map((_, i) => (
                 <div
