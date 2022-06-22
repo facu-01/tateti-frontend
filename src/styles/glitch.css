@@ -48,63 +48,6 @@
 }
 
 
-.single-path {
-    clip-path: polygon(
-            0% 12%,
-            53% 12%,
-            53% 26%,
-            25% 26%,
-            25% 86%,
-            31% 86%,
-            31% 0%,
-            53% 0%,
-            53% 84%,
-            92% 84%,
-            92% 82%,
-            70% 82%,
-            70% 29%,
-            78% 29%,
-            78% 65%,
-            69% 65%,
-            69% 66%,
-            77% 66%,
-            77% 45%,
-            85% 45%,
-            85% 26%,
-            97% 26%,
-            97% 28%,
-            84% 28%,
-            84% 34%,
-            54% 34%,
-            54% 89%,
-            30% 89%,
-            30% 58%,
-            83% 58%,
-            83% 5%,
-            68% 5%,
-            68% 36%,
-            62% 36%,
-            62% 1%,
-            12% 1%,
-            12% 34%,
-            60% 34%,
-            60% 57%,
-            98% 57%,
-            98% 83%,
-            1% 83%,
-            1% 53%,
-            91% 53%,
-            91% 84%,
-            8% 84%,
-            8% 83%,
-            4% 83%
-    );
-}
-
-.paths {
-    animation: paths 5s step-end infinite;
-}
-
 @keyframes paths {
     0% {
         clip-path: polygon(
@@ -357,11 +300,6 @@
     }
 }
 
-.movement {
-    /* Normally this position would be absolute  on the layers, set to relative here so we can see it on the div */
-    position: relative;
-    animation: movement 8s step-end infinite;
-}
 
 @keyframes movement {
     0% {
@@ -390,9 +328,6 @@
     }
 }
 
-.opacity {
-    animation: opacity 5s step-end infinite;
-}
 
 @keyframes opacity {
     0% {
@@ -429,9 +364,6 @@
     }
 }
 
-.font {
-    animation: font 7s step-end infinite;
-}
 
 @keyframes font {
     0% {
@@ -494,91 +426,3 @@
 }
 
 
-/*!*test*!*/
-
-/*.test{*/
-/*    display: inline-block;*/
-/*    padding: 12px 25px;*/
-/*    position: relative;*/
-/*    z-index: 1;*/
-/*    text-transform: uppercase;*/
-/*    text-decoration: none;*/
-/*    color: #fff;*/
-/*    letter-spacing: 0.1em;*/
-/*    background: #30302f;*/
-/*    transition: 0.25s ease-in-out;}*/
-/*.test:before,.test:after {*/
-/*    content: attr(data-text);*/
-/*    padding: inherit;*/
-/*    position: absolute;*/
-/*    top: 0;*/
-/*    left: 0;*/
-/*    bottom: 0;*/
-/*    right: 0;*/
-/*    transform-origin: 0 50%;*/
-/*    z-index: -1;*/
-/*    opacity: 0;*/
-/*}*/
-/*.test:hover,.test:focus {*/
-/*background: #000;*/
-/*    color: rgba(255, 255, 255, 0.9);*/
-/*}*/
-
-/*.test:hover:after,.test:focus:after {*/
-/*    animation: jumpAfter 0.3s ease-in-out 0s infinite normal;*/
-/*    color: blue;*/
-/*    opacity: 1;*/
-/*}*/
-
-/*.test:hover:before,.test:focus:before {*/
-/*    animation: jumpBefore 0.2s ease-in-out 0s infinite normal;*/
-/*    color: red;*/
-/*    opacity: 1;*/
-/*}*/
-
-/*@keyframes jumpAfter{*/
-/*    0%{*/
-/*        transform: translate3d(-2px, 0, 0);*/
-/*    }*/
-/*    20%{*/
-/*        transform: translate3d(-2px, 0, 0);*/
-/*    }*/
-/*    40%{*/
-/*        transform: translate3d(-2px, 0, 0);*/
-/*    }*/
-/*    50%{*/
-/*        transform: translate3d(-3px, 0, 0);*/
-/*    }*/
-/*    60%{*/
-/*        transform: translate3d(-2px, 0, 0);*/
-/*    }*/
-/*    80%{*/
-/*        transform: translate3d(-2px, 0, 0);*/
-/*    }*/
-/*    100%{*/
-/*        transform: translate3d(-3px, 0, 0);*/
-/*    }*/
-/*}*/
-/*@keyframes jumpBefore{*/
-/*    0%{*/
-/*        transform: translate3d(2px, 0, 0);*/
-/*    }*/
-/*    20%{*/
-/*        transform: translate3d(-2px, -2px, 0);*/
-/*    }*/
-/*    40%{*/
-/*        transform: translate3d(2px, 0, 0);*/
-/*    }*/
-/*    50%{*/
-/*        transform: translate3d(-2px, 0, 0);*/
-/*    }*/
-/*    60%{*/
-/*        transform: translate3d(2px, 0, 0);*/
-/*    }*/
-/*    80%{*/
-/*        transform: translate3d(2px, 0, 0);*/
-/*    }*/
-/*    100%{*/
-/*        transform: translate3d(2px, 0, 0);*/
-/*    }*/
-/*}*/

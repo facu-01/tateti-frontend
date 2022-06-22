@@ -9,6 +9,7 @@ import { updateSessionUser } from 'store/user';
 import { ContainerGlitch } from 'components/ContainerGlitch';
 import { GlitchWriter } from 'components/GlitchWriter';
 import { ButtonGlitch } from 'components/ButtonGlitch';
+import { GlitchSvg } from 'components/glitchSvg/GlitchSvg';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const useLogin = () => {

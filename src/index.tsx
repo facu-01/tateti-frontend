@@ -8,7 +8,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ToastContainer } from 'react-toastify';
 import 'animate.css';
 import 'terminal.css';
-import './styles/glitch.css';
+import 'styles/glitch.css';
 
 const queryClient = new QueryClient();
 

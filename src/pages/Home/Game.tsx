@@ -3,6 +3,9 @@ import axios, { Axios } from 'axios';
 import { GlitchWriter } from 'components/GlitchWriter';
 import React, { useState } from 'react';
 import { ButtonGlitch } from 'components/ButtonGlitch';
+import { ReactComponent as Circle } from 'components/images/o.svg';
+import { ReactComponent as Cross } from 'components/images/o.svg';
+import { GlitchSvg } from 'components/glitchSvg/GlitchSvg';
 
 interface IGame {
   gameToken: string;
@@ -161,15 +164,27 @@ export const Game: React.FC<{ gameToken: string }> = ({ gameToken }) => {
                   onClick={(): void => makeMove(i)}
                   disabled={!dataGame?.data.yourTurn}
                   key={i}
-                  className={'btn btn-default'}
                   style={{
                     cursor: dataGame?.data.yourTurn ? 'pointer' : 'not-allowed',
                     border: '1px solid grey',
                     width: '100%',
                     height: '100%',
+                    display: 'grid',
+                    placeItems: 'center',
+                    backgroundColor:
+                      '-internal-light-dark(rgba(239, 239, 239, 0.3), rgba(19, 1, 1, 0.3))',
+                    color:
+                      '-internal-light-dark(rgba(16, 16, 16, 0.3), rgba(255, 255, 255, 0.3))',
+                    borderColor:
+                      '-internal-light-dark(rgba(118, 118, 118, 0.3), rgba(195, 195, 195, 0.3))',
                   }}
                 >
-                  {symbol}
+                  {symbol === 'x' && (
+                    <GlitchSvg dimensions={[48, 48]} Svg={Cross} />
+                  )}
+                  {symbol === 'o' && (
+                    <GlitchSvg dimensions={[48, 48]} Svg={Circle} />
+                  )}
                 </button>
               ))
             : [...Array(9)].map((_, i) => (
