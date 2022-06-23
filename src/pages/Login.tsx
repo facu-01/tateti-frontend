@@ -57,7 +57,7 @@ const useLogin = () => {
     {
       onSuccess: async (response) => {
         await updateSessionUser(response.data.token);
-        navigate('/home');
+        navigate('/home/');
       },
     }
   );
