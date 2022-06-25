@@ -1,0 +1,48 @@
+.btn-pixel {
+    transition: 0.5s;
+    transition-delay: 0.8s;
+    animation: animate 0.8s steps(8) forwards;
+    background-size: 200px;
+}
+
+.btn-pixel-current-player{
+    background: #7a18ec url('./purplePixel.png');
+}
+
+.btn-pixel-vs-player{
+    background: #ec1840 url('./redPixel.png');
+}
+
+@keyframes animate {
+    0% {
+        background-position-y: 0;
+    }
+    100% {
+        background-position-y: -480px;
+    }
+}
+
+.gradient-border {
+    position: relative;
+    display: flex;
+}
+.gradient-border::after {
+    --border-width: 2px;
+    position: absolute;
+    content: "";
+    top: calc(-1 * var(--border-width));
+    left: calc(-1 * var(--border-width));
+    z-index: -1;
+    width: calc(100% + var(--border-width) * 2);
+    height: calc(100% + var(--border-width) * 2);
+    background: radial-gradient(circle, #000000, #3b1d1c, #6b391f, #8c6212, #929500, #85b221, #69cf47, #00ec76, #00f29e, #00f6c0, #27f9dc, #5ffbf1);
+    background-size: 300% 300%;
+    background-position: 0 50%;
+    animation: moveGradient 4s alternate infinite;
+}
+
+@keyframes moveGradient {
+    50% {
+        background-position: 100% 50%;
+    }
+}

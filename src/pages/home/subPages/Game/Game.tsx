@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from 'react-query';
-import axios, { Axios, AxiosError } from 'axios';
+import axios from 'axios';
 import { GlitchWriter } from 'components/GlitchWriter';
 import React, { useState } from 'react';
 import { ButtonGlitch } from 'components/ButtonGlitch';
@@ -7,6 +7,8 @@ import { ReactComponent as Circle } from 'components/images/O.svg';
 import { ReactComponent as Cross } from 'components/images/X.svg';
 import { GlitchSvg } from 'components/glitchSvg/GlitchSvg';
 import { useNavigate, useParams } from 'react-router-dom';
+import './buttonCell.css';
+import { toast } from 'react-toastify';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const useGame = (token: string | undefined) =>
@@ -34,9 +36,13 @@ const useGame = (token: string | undefined) =>
             return false;
         }
         if (query.state.errorUpdateCount >= 3) return false;
-        if (response?.data?.finished) return false;
+        if (response?.data?.ended) return false;
         if (response?.data?.yourTurn) return false;
         return 1000;
+      },
+      onSuccess: (response) => {
+        if (response.data.youWin) toast.success('You win!');
+        if (response.data.youWin === false) toast.error('You lost!');
       },
     }
   );
@@ -111,6 +117,8 @@ export const Game: React.FC = () => {
   const { gameToken } = useParams();
   const navigate = useNavigate();
 
+  // TODO: tooltip for game token
+
   //fetch game
   const {
     data: dataGame,
@@ -118,20 +126,25 @@ export const Game: React.FC = () => {
     isLoading: isLoadingGame,
     isError: isErrorGame,
     refetch: refetchGame,
-    isSuccess: isSuccessGame,
   } = useGame(gameToken);
 
   const [showTable, setShowTable] = useState(false);
 
+  //TODO loading move?
   //make move
-  const { mutate: mutateMakeMove, isLoading: isLoadingMakeMove } =
-    useMakeMove(refetchGame);
+  const {
+    mutate: mutateMakeMove,
+    // isLoading: isLoadingMakeMove
+  } = useMakeMove(refetchGame);
 
   const makeMove = (cellIndex: number): void => {
     if (gameToken) mutateMakeMove({ cellIndex, gameToken });
   };
 
-  // TODO: tooltip for game token
+  const winningCell = (cellIndex: number): boolean => {
+    if (!dataGame?.data?.winningCombination) return false;
+    return dataGame.data.winningCombination.includes(cellIndex);
+  };
 
   if (isErrorGame) {
     const getMessage = (): string => {
@@ -155,36 +168,56 @@ export const Game: React.FC = () => {
         paddingLeft: '10px',
       }}
     >
-      {gameToken && (
-        <LineInfo
-          message={'game token:'}
-          data={gameToken}
-          isLoading={isLoadingGame}
-        />
-      )}
-      <LineInfo
-        message={'game status:'}
-        data={dataGame?.data.status}
-        isLoading={isLoadingGame}
-        onEnd={(): void => setShowTable(true)}
-      />
-      {!dataGame?.data.finished &&
-        dataGame?.data.status !== 'waiting_for_join' && (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+        }}
+      >
+        {gameToken && (
           <LineInfo
-            message={'your turn:'}
-            data={`${dataGame?.data?.yourTurn}`}
+            message={'game token:'}
+            data={gameToken}
             isLoading={isLoadingGame}
           />
         )}
-
-      {dataGame?.data.winner && (
         <LineInfo
-          message={'winner:'}
-          data={dataGame?.data.winner}
+          message={'game status:'}
+          data={dataGame?.data.status}
           isLoading={isLoadingGame}
+          onEnd={(): void => setShowTable(true)}
         />
-      )}
-
+        {!dataGame?.data.ended &&
+          dataGame?.data.status !== 'waiting_for_join' && (
+            <LineInfo
+              message={'your turn:'}
+              data={`${dataGame?.data?.yourTurn}`}
+              isLoading={isLoadingGame}
+            />
+          )}
+        {dataGame?.data.versus && (
+          <LineInfo
+            message={'versus:'}
+            data={dataGame?.data.versus}
+            isLoading={isLoadingGame}
+          />
+        )}
+        {dataGame?.data.winner && (
+          <LineInfo
+            message={'winner:'}
+            data={dataGame?.data.winner}
+            isLoading={isLoadingGame}
+          />
+        )}
+        {dataGame?.data.yourSymbol && (
+          <LineInfo
+            message={'your symbol:'}
+            data={dataGame?.data.yourSymbol}
+            isLoading={isLoadingGame}
+          />
+        )}
+      </div>
       <div
         style={{
           height: '100%',
@@ -197,34 +230,65 @@ export const Game: React.FC = () => {
           className={showTable ? 'animate__animated animate__fadeIn' : ''}
           style={{
             display: 'grid',
+            rowGap: '10px',
+            columnGap: '10px',
             gridTemplateRows: 'repeat(3, 100px)',
             gridTemplateColumns: 'repeat(3, 100px)',
           }}
         >
           {showTable && dataGame?.data?.table
-            ? dataGame?.data.table.map((symbol: string | null, i: number) => (
-                <button
-                  onClick={(): void => makeMove(i)}
-                  disabled={!dataGame?.data.yourTurn}
-                  key={i}
-                  style={{
-                    cursor: dataGame?.data.yourTurn ? 'pointer' : 'not-allowed',
-                    backgroundColor: 'rgb(96 96 98)',
-                    border: '1px solid grey',
-                    width: '100%',
-                    height: '100%',
-                    display: 'grid',
-                    placeItems: 'center',
-                  }}
-                >
-                  {symbol === 'x' && (
-                    <GlitchSvg dimensions={[48, 48]} Svg={Cross} />
-                  )}
-                  {symbol === 'o' && (
-                    <GlitchSvg dimensions={[48, 48]} Svg={Circle} />
-                  )}
-                </button>
-              ))
+            ? dataGame?.data.table.map(
+                (symbol: string | null, index: number) => (
+                  <div
+                    key={index}
+                    className={
+                      winningCell(index)
+                        ? 'animate__flipInX animate__animated gradient-border'
+                        : undefined
+                    }
+                  >
+                    <div
+                      onClick={(): void => {
+                        if (
+                          !dataGame.data.yourTurn ||
+                          symbol !== null ||
+                          dataGame.data.ended
+                        ) {
+                          return;
+                        }
+                        makeMove(index);
+                      }}
+                      className={
+                        symbol
+                          ? symbol === dataGame.data.yourSymbol
+                            ? 'btn-pixel btn-pixel-current-player'
+                            : 'btn-pixel btn-pixel-vs-player'
+                          : undefined
+                      }
+                      style={{
+                        cursor:
+                          dataGame.data.yourTurn &&
+                          symbol === null &&
+                          !dataGame.data.ended
+                            ? 'pointer'
+                            : 'not-allowed',
+                        backgroundColor: !symbol ? 'rgb(96 96 98)' : undefined,
+                        width: '100%',
+                        height: '100%',
+                        display: 'grid',
+                        placeItems: 'center',
+                      }}
+                    >
+                      {symbol === 'x' && (
+                        <GlitchSvg dimensions={[48, 48]} Svg={Cross} />
+                      )}
+                      {symbol === 'o' && (
+                        <GlitchSvg dimensions={[48, 48]} Svg={Circle} />
+                      )}
+                    </div>
+                  </div>
+                )
+              )
             : [...Array(9)].map((_, i) => (
                 <div
                   key={i}

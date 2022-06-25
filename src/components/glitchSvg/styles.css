@@ -2,7 +2,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    fill: rgb(229, 229, 229);
+    fill: rgba(2, 2, 2, 0.78);
 }
 
 .svgGlitch:nth-child(2), .svgGlitch:nth-child(3) {

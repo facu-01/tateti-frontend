@@ -8,7 +8,7 @@ import { AuthGuard } from 'components/AuthGuard';
 import { useAuthUser } from 'services/user';
 import './App.css';
 import { Register } from 'pages/Register';
-import { Game } from 'pages/home/subPages/Game';
+import { Game } from 'pages/home/subPages/Game/Game';
 import { GameLauncher } from 'pages/home/subPages/GameLauncher';
 import { ButtonGlitch } from 'components/ButtonGlitch';
 import { GlitchWriter } from 'components/GlitchWriter';
