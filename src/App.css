@@ -26,3 +26,22 @@
     --toastify-toast-min-height:unset !important;
     --toastify-toast-width:unset !important;
 }
+
+.spanLink {
+    cursor: pointer;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+.spanLink:hover{
+    background-color: var(--primary-color);
+    color: var(--invert-font-color);
+}
+
+.hideScrollbar{
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;
+}
+
+.hideScrollbar::-webkit-scrollbar {
+    display: none;  /* Safari and Chrome */
+}

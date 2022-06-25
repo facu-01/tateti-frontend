@@ -22,7 +22,6 @@
     color: #1bc7fb;
 }
 
-
 .layers {
     position: relative;
 }
@@ -46,7 +45,6 @@
     left: -10px;
     color: #1bc7fb;
 }
-
 
 @keyframes paths {
     0% {
@@ -370,6 +368,7 @@
         font-weight: 100;
         color: #e0287d;
         filter: blur(3px);
+        text-shadow: red -2px 0, cyan 2px 0;
     }
 
     20% {
@@ -382,15 +381,18 @@
         font-weight: 300;
         color: #1bc7fb;
         filter: blur(2px);
+        text-shadow: red 0 0, cyan 0 0;
     }
 
     60% {
         font-weight: 700;
         color: #fff;
         filter: blur(0);
+        text-shadow: red 2px 0, cyan -2px 0;
     }
 
     90% {
+        text-shadow: red 2px 4px, cyan -2px -4px;
         font-weight: 500;
         color: #e0287d;
         filter: blur(6px);

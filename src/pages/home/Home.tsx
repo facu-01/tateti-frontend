@@ -1,5 +1,6 @@
 import { Bar } from 'pages/home/Bar';
 import { Outlet } from 'react-router-dom';
+import { Table } from 'pages/home/subPages/Table';
 
 export const Home: React.FC = () => {
   // TODO: browse games
@@ -10,10 +11,12 @@ export const Home: React.FC = () => {
         width: '100%',
         height: '100%',
         display: 'grid',
-        gridTemplateRows: '50px auto',
+        gridTemplateRows: '50px calc(100% - 50px)',
         gridTemplateColumns: '50% 50%',
         padding: '10px',
         paddingBottom: '20px',
+        rowGap: '10px',
+        columnGap: '10px',
       }}
     >
       <div
@@ -22,6 +25,14 @@ export const Home: React.FC = () => {
         }}
       >
         <Bar />
+      </div>
+      <div
+        style={{
+          gridColumn: '2',
+          gridRow: '2',
+        }}
+      >
+        <Table />
       </div>
       <Outlet />
     </div>

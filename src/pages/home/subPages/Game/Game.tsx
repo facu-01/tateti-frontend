@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from 'react-query';
 import axios from 'axios';
 import { GlitchWriter } from 'components/GlitchWriter';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ButtonGlitch } from 'components/ButtonGlitch';
 import { ReactComponent as Circle } from 'components/images/O.svg';
 import { ReactComponent as Cross } from 'components/images/X.svg';
@@ -11,7 +11,7 @@ import './buttonCell.css';
 import { toast } from 'react-toastify';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-const useGame = (token: string | undefined) =>
+const useGame = (token: string | undefined, showTable: () => void) =>
   useQuery(
     ['game', token],
     ({ signal }) =>
@@ -41,6 +41,7 @@ const useGame = (token: string | undefined) =>
         return 1000;
       },
       onSuccess: (response) => {
+        showTable();
         if (response.data.youWin) toast.success('You win!');
         if (response.data.youWin === false) toast.error('You lost!');
       },
@@ -86,12 +87,20 @@ const ErrorMessage: React.FC<{ message: string }> = ({ message }) => {
   );
 };
 
-const LineInfo: React.FC<{
+interface ILineInfo extends React.HTMLAttributes<HTMLDivElement> {
   message: string;
   data: string;
   isLoading: boolean;
   onEnd?: () => void;
-}> = ({ data, message, isLoading, onEnd }) => (
+}
+
+const LineInfo: React.FC<ILineInfo> = ({
+  data,
+  message,
+  isLoading,
+  onEnd,
+  ...rest
+}) => (
   <div
     style={{
       display: 'flex',
@@ -108,6 +117,7 @@ const LineInfo: React.FC<{
       <GlitchWriter
         text={isLoading ? 'xxxxxxxxxxx' : data}
         endLess={isLoading}
+        {...rest}
       />
     </b>
   </div>
@@ -115,7 +125,10 @@ const LineInfo: React.FC<{
 
 export const Game: React.FC = () => {
   const { gameToken } = useParams();
-  const navigate = useNavigate();
+
+  const [showTable, setShowTable] = useState(false);
+
+  useEffect(() => setShowTable(false), [gameToken]);
 
   // TODO: tooltip for game token
 
@@ -126,9 +139,7 @@ export const Game: React.FC = () => {
     isLoading: isLoadingGame,
     isError: isErrorGame,
     refetch: refetchGame,
-  } = useGame(gameToken);
-
-  const [showTable, setShowTable] = useState(false);
+  } = useGame(gameToken, () => setShowTable(true));
 
   //TODO loading move?
   //make move
@@ -182,38 +193,29 @@ export const Game: React.FC = () => {
             isLoading={isLoadingGame}
           />
         )}
-        <LineInfo
-          message={'game status:'}
-          data={dataGame?.data.status}
-          isLoading={isLoadingGame}
-          onEnd={(): void => setShowTable(true)}
-        />
-        {!dataGame?.data.ended &&
-          dataGame?.data.status !== 'waiting_for_join' && (
-            <LineInfo
-              message={'your turn:'}
-              data={`${dataGame?.data?.yourTurn}`}
-              isLoading={isLoadingGame}
-            />
-          )}
-        {dataGame?.data.versus && (
+        {!dataGame?.data.ended && dataGame?.data.status !== 'waiting_for_join' && (
           <LineInfo
-            message={'versus:'}
-            data={dataGame?.data.versus}
+            message={'your turn:'}
+            data={
+              !dataGame?.data?.ended
+                ? dataGame?.data?.yourTurn
+                  ? '✔'
+                  : '❌'
+                : '-'
+            }
             isLoading={isLoadingGame}
-          />
-        )}
-        {dataGame?.data.winner && (
-          <LineInfo
-            message={'winner:'}
-            data={dataGame?.data.winner}
-            isLoading={isLoadingGame}
+            style={{
+              color: dataGame?.data?.yourTurn ? 'green' : 'red',
+            }}
           />
         )}
         {dataGame?.data.yourSymbol && (
           <LineInfo
             message={'your symbol:'}
-            data={dataGame?.data.yourSymbol}
+            data={dataGame?.data?.yourSymbol.toUpperCase()}
+            style={{
+              color: 'var(--primary-color)',
+            }}
             isLoading={isLoadingGame}
           />
         )}
@@ -227,13 +229,15 @@ export const Game: React.FC = () => {
         }}
       >
         <div
-          className={showTable ? 'animate__animated animate__fadeIn' : ''}
+          className={
+            showTable ? 'animate__animated animate__fadeIn' : undefined
+          }
           style={{
             display: 'grid',
             rowGap: '10px',
             columnGap: '10px',
-            gridTemplateRows: 'repeat(3, 100px)',
-            gridTemplateColumns: 'repeat(3, 100px)',
+            gridTemplateRows: 'repeat(3, 150px)',
+            gridTemplateColumns: 'repeat(3, 150px)',
           }}
         >
           {showTable && dataGame?.data?.table
@@ -272,7 +276,10 @@ export const Game: React.FC = () => {
                           !dataGame.data.ended
                             ? 'pointer'
                             : 'not-allowed',
-                        backgroundColor: !symbol ? 'rgb(96 96 98)' : undefined,
+                        backgroundColor: !symbol ? '#222225' : undefined,
+                        border: !winningCell(index)
+                          ? '1px solid grey'
+                          : undefined,
                         width: '100%',
                         height: '100%',
                         display: 'grid',
@@ -280,10 +287,10 @@ export const Game: React.FC = () => {
                       }}
                     >
                       {symbol === 'x' && (
-                        <GlitchSvg dimensions={[48, 48]} Svg={Cross} />
+                        <GlitchSvg dimensions={[70, 70]} Svg={Cross} />
                       )}
                       {symbol === 'o' && (
-                        <GlitchSvg dimensions={[48, 48]} Svg={Circle} />
+                        <GlitchSvg dimensions={[70, 70]} Svg={Circle} />
                       )}
                     </div>
                   </div>
@@ -301,9 +308,6 @@ export const Game: React.FC = () => {
               ))}
         </div>
       </div>
-      <ButtonGlitch onClick={(): void => navigate('/home/')}>
-        Go to home
-      </ButtonGlitch>
     </div>
   );
 };
