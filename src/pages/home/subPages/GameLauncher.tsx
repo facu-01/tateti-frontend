@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useMutation } from 'react-query';
 import axios, { AxiosResponse } from 'axios';
@@ -101,11 +101,7 @@ export const GameLauncher: React.FC = () => {
   } = useCreateGame();
 
   // join game
-  const {
-    isLoading: isLoadingJoinGame,
-    error: errorJoinGame,
-    mutate: joinGame,
-  } = useJoinGame();
+  const { isLoading: isLoadingJoinGame, mutate: joinGame } = useJoinGame();
 
   const [joinGameToken, setJoinGameToken] = useState('');
 
@@ -161,38 +157,6 @@ export const GameLauncher: React.FC = () => {
         />
         <ButtonGlitch onClick={handleJoinGame}>Join Game</ButtonGlitch>
       </div>
-
-      {/*{(isLoadingCreateGame || isLoadingJoinGame) && (*/}
-      {/*  <>*/}
-      {/*    <div*/}
-      {/*      style={{*/}
-      {/*        display: 'flex',*/}
-      {/*        alignItems: 'center',*/}
-      {/*        gap: '10px',*/}
-      {/*      }}*/}
-      {/*    >*/}
-      {/*      <GlitchWriter*/}
-      {/*        className={'terminal-prompt'}*/}
-      {/*        text={isLoadingCreateGame ? 'Loading...' : 'game token:'}*/}
-      {/*      />*/}
-      {/*      {(createGameData ||*/}
-      {/*        isLoadingCreateGame ||*/}
-      {/*        dataJoinGame ||*/}
-      {/*        isLoadingJoinGame) && (*/}
-      {/*        <b>*/}
-      {/*          <GlitchWriter*/}
-      {/*            text={*/}
-      {/*              isSuccessCreateGame || isSuccessJoinGame*/}
-      {/*                ? gameToken*/}
-      {/*                : 'xxxxxxxxxxx'*/}
-      {/*            }*/}
-      {/*            endLess={!isSuccessCreateGame && !isSuccessJoinGame}*/}
-      {/*          />*/}
-      {/*        </b>*/}
-      {/*      )}*/}
-      {/*    </div>*/}
-      {/*  </>*/}
-      {/*)}*/}
     </div>
   );
 };

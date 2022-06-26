@@ -1,4 +1,4 @@
-import { ChangeEvent, memo, useCallback, useMemo, useState } from 'react';
+import { ChangeEvent, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { validateEmail } from 'services/validations';
 import { CustomInput } from 'components/CustomInput';
@@ -6,7 +6,6 @@ import { useMutation } from 'react-query';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { ContainerGlitch } from 'components/ContainerGlitch';
-import { GlitchWriter } from 'components/GlitchWriter';
 import { ButtonGlitch } from 'components/ButtonGlitch';
 
 interface IRegisterErrors {
@@ -127,6 +126,7 @@ export const Register: React.FC = () => {
             })
           )
       ),
+    // eslint-disable-next-line
     []
   );
 

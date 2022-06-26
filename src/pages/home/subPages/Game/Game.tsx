@@ -42,6 +42,7 @@ const useGame = (token: string | undefined, showTable: () => void) =>
       },
       onSuccess: (response) => {
         showTable();
+        if (response.data.status === 'tied') toast.success('Its a tie!');
         if (response.data.youWin) toast.success('You win!');
         if (response.data.youWin === false) toast.error('You lost!');
       },

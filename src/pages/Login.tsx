@@ -1,15 +1,13 @@
-import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import React, { ChangeEvent, useMemo, useState } from 'react';
 import { validateEmail } from 'services/validations';
 import { useNavigate } from 'react-router-dom';
 import { CustomInput } from 'components/CustomInput';
-import { useMutation, UseMutationResult } from 'react-query';
+import { useMutation } from 'react-query';
 import { toast } from 'react-toastify';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import { updateSessionUser } from 'store/user';
 import { ContainerGlitch } from 'components/ContainerGlitch';
-import { GlitchWriter } from 'components/GlitchWriter';
 import { ButtonGlitch } from 'components/ButtonGlitch';
-import { GlitchSvg } from 'components/glitchSvg/GlitchSvg';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const useLogin = () => {
@@ -115,6 +113,7 @@ export const Login: React.FC = () => {
             })
           )
       ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 

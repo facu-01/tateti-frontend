@@ -1,5 +1,5 @@
 import { Subject } from 'rxjs';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import axios from 'axios';
 import { environment } from 'environment/environment';
 

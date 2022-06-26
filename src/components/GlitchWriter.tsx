@@ -31,6 +31,7 @@ export const GlitchWriter: React.FC<IGlitchWriter> = ({
       if (onEnd) writer.removeCallback('finish', onEnd);
       setWriter(undefined);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
