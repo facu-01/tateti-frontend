@@ -19,7 +19,7 @@ axios.defaults.baseURL = environment.backendUrl;
 //TODO: animate routes
 
 export const App: React.FC = () => {
-  const auth = useAuthUser();
+  const { auth } = useAuthUser();
   const navigate = useNavigate();
 
   return (
@@ -50,28 +50,28 @@ export const App: React.FC = () => {
           <Route path={''} element={<GameLauncher />} />
           <Route path={'game/:gameToken'} element={<Game />} />
           <Route path={'game'} element={<Navigate to={'/home/'} />} />
-          <Route
-            path="*"
-            element={
-              <div
-                style={{
-                  display: 'grid',
-                  height: '100%',
-                  width: '100%',
-                  placeItems: 'center',
-                }}
-              >
-                <GlitchWriter
-                  className={'terminal-alert terminal-alert-error'}
-                  text={'There is nothing here!'}
-                />
-                <ButtonGlitch onClick={(): void => navigate('/home/')}>
-                  Go back
-                </ButtonGlitch>
-              </div>
-            }
-          />
         </Route>
+        <Route
+          path="*"
+          element={
+            <div
+              style={{
+                display: 'grid',
+                height: '100%',
+                width: '100%',
+                placeItems: 'center',
+              }}
+            >
+              <GlitchWriter
+                className={'terminal-alert terminal-alert-error'}
+                text={'There is nothing here!'}
+              />
+              <ButtonGlitch onClick={(): void => navigate('/home/')}>
+                Go back
+              </ButtonGlitch>
+            </div>
+          }
+        />
       </Routes>
     </div>
   );

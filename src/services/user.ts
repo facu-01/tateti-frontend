@@ -1,9 +1,9 @@
 import { useSessionUser } from 'store/user';
 
-export const useAuthUser = (): boolean => {
+export const useAuthUser = (): { pending: boolean; auth: boolean } => {
   const { pending, user } = useSessionUser();
 
-  if (pending) return true;
+  if (pending) return { pending: true, auth: false };
 
-  return user !== undefined;
+  return { pending: false, auth: user !== undefined };
 };
